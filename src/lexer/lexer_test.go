@@ -60,7 +60,6 @@ func TestDoubleWordsToken(t *testing.T) {
 		{token.EQ, "=="},
 		{token.NOT_EQ, "!="},
 		{token.EOF, ""},
-		
 	}
 
 	lexer := New(input)
