@@ -5,13 +5,15 @@ import (
 	"testing"
 )
 
-func TestSimpleNextToken(t *testing.T) {
-	input := `=+(){}<>-/*,;`
+type testToken = []struct {
+	expectedType    token.TokenType
+	expectedLiteral string
+}
 
-	tests := []struct {
-		expectedType    token.TokenType
-		expectedLiteral string
-	}{
+func TestSingleWordToken(t *testing.T) {
+	input := `=+(){}<>-/*!,;|=`
+
+	tests := testToken{
 		{token.ASSIGN, "="},
 		{token.PLUS, "+"},
 		{token.LPAREN, "("},
@@ -23,8 +25,11 @@ func TestSimpleNextToken(t *testing.T) {
 		{token.MINUS, "-"},
 		{token.SLASH, "/"},
 		{token.ASTERRISk, "*"},
+		{token.BANG, "!"},
 		{token.COMMA, ","},
 		{token.SEMICOLON, ";"},
+		{token.ILLEGAL, "|"},
+		{token.ASSIGN, "="},
 		{token.EOF, ""},
 	}
 
@@ -45,6 +50,35 @@ func TestSimpleNextToken(t *testing.T) {
 
 }
 
+func TestDoubleWordsToken(t *testing.T) {
+	input := `
+	==
+	!=
+	`
+
+	tests := testToken{
+		{token.EQ, "=="},
+		{token.NOT_EQ, "!="},
+		{token.EOF, ""},
+		
+	}
+
+	lexer := New(input)
+
+	for i, correctToken := range tests {
+		tok := lexer.NextToken()
+
+		if tok.Type != correctToken.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected = %q, got = %q", i, correctToken.expectedType, tok.Type)
+		}
+
+		if tok.Literal != correctToken.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected = %q, got = %q", i, correctToken.expectedLiteral, tok.Literal)
+
+		}
+	}
+}
+
 func TestKeyWordsToken(t *testing.T) {
 	input := `
 	let
@@ -55,10 +89,7 @@ func TestKeyWordsToken(t *testing.T) {
 	else
 	return
 	`
-	tests := []struct {
-		expectedType    token.TokenType
-		expectedLiteral string
-	}{
+	tests := testToken{
 		{token.LET, "let"},
 		{token.FALSE, "false"},
 		{token.TRUE, "true"},
@@ -68,6 +99,7 @@ func TestKeyWordsToken(t *testing.T) {
 		{token.RETURN, "return"},
 		{token.EOF, ""},
 	}
+
 	lexer := New(input)
 
 	for i, correctToken := range tests {
@@ -95,10 +127,7 @@ func TestMediumNextToken(t *testing.T) {
 	
 	let result = add(five, ten);`
 
-	tests := []struct {
-		expectedType    token.TokenType
-		expectedLiteral string
-	}{
+	tests := testToken{
 		{token.LET, "let"},
 		{token.IDENT, "five"},
 		{token.ASSIGN, "="},
