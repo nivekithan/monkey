@@ -1,8 +1,6 @@
 package lexer
 
 import (
-	"fmt"
-
 	"github.com/nivekithan/monkey/src/token"
 )
 
@@ -35,29 +33,43 @@ func (lexer *Lexer) NextToken() token.Token {
 
 	lexer.skipWhiteSpace()
 
-	switch lexer.ch {
+	ch := lexer.ch
+
+	switch ch {
 	case '=':
-		tok = newToken(token.ASSIGN, lexer.ch)
+		tok = newToken(token.ASSIGN, ch)
 	case ';':
-		tok = newToken(token.SEMICOLON, lexer.ch)
+		tok = newToken(token.SEMICOLON, ch)
 	case ',':
-		tok = newToken(token.COMMA, lexer.ch)
+		tok = newToken(token.COMMA, ch)
 	case '+':
-		tok = newToken(token.PLUS, lexer.ch)
+		tok = newToken(token.PLUS, ch)
+	case '-':
+		tok = newToken(token.MINUS, ch)
+	case '!':
+		tok = newToken(token.BANG, ch)
+	case '*':
+		tok = newToken(token.ASTERRISk, ch)
+	case '/':
+		tok = newToken(token.SLASH, ch)
 	case '(':
-		tok = newToken(token.LPAREN, lexer.ch)
+		tok = newToken(token.LPAREN, ch)
 	case ')':
-		tok = newToken(token.RPAREN, lexer.ch)
+		tok = newToken(token.RPAREN, ch)
 	case '{':
-		tok = newToken(token.LBRACE, lexer.ch)
+		tok = newToken(token.LBRACE, ch)
 	case '}':
-		tok = newToken(token.RBRACE, lexer.ch)
+		tok = newToken(token.RBRACE, ch)
+	case '<':
+		tok = newToken(token.LT, ch)
+	case '>':
+		tok = newToken(token.GT, ch)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
+
 	default:
 		if isLetter(lexer.ch) {
-			fmt.Print("I am here")
 			tok.Literal = lexer.readIdentifer()
 			tok.Type = token.LookUpIdent(tok.Literal)
 			return tok
@@ -104,7 +116,7 @@ func newToken(tokenType token.TokenType, ch byte) token.Token {
 }
 
 func isLetter(ch byte) bool {
-	return 'a' <= ch && ch  <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
 }
 
 func isDigit(ch byte) bool {

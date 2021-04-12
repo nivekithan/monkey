@@ -6,7 +6,7 @@ import (
 )
 
 func TestSimpleNextToken(t *testing.T) {
-	input := `=+(){},;`
+	input := `=+(){}<>-/*,;`
 
 	tests := []struct {
 		expectedType    token.TokenType
@@ -18,11 +18,56 @@ func TestSimpleNextToken(t *testing.T) {
 		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
 		{token.RBRACE, "}"},
+		{token.LT, "<"},
+		{token.GT, ">"},
+		{token.MINUS, "-"},
+		{token.SLASH, "/"},
+		{token.ASTERRISk, "*"},
 		{token.COMMA, ","},
 		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
 
+	lexer := New(input)
+
+	for i, correctToken := range tests {
+		tok := lexer.NextToken()
+
+		if tok.Type != correctToken.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected = %q, got = %q", i, correctToken.expectedType, tok.Type)
+		}
+
+		if tok.Literal != correctToken.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected = %q, got = %q", i, correctToken.expectedLiteral, tok.Literal)
+
+		}
+	}
+
+}
+
+func TestKeyWordsToken(t *testing.T) {
+	input := `
+	let
+	false
+	true
+	fn
+	if 
+	else
+	return
+	`
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.LET, "let"},
+		{token.FALSE, "false"},
+		{token.TRUE, "true"},
+		{token.FUNCTION, "fn"},
+		{token.IF, "if"},
+		{token.ELSE, "else"},
+		{token.RETURN, "return"},
+		{token.EOF, ""},
+	}
 	lexer := New(input)
 
 	for i, correctToken := range tests {
@@ -90,7 +135,7 @@ func TestMediumNextToken(t *testing.T) {
 		{token.IDENT, "ten"},
 		{token.RPAREN, ")"},
 		{token.SEMICOLON, ";"},
-		
+
 		{token.EOF, ""},
 	}
 
